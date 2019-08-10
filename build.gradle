@@ -12,8 +12,10 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    compile "org.spongepowered:spongeapi:7.1.0"
+    compileOnly "org.spongepowered:spongeapi:7.1.0"
+    compile "com.github.Aquerr:EagleFactionsAPI:-SNAPSHOT"
 }
