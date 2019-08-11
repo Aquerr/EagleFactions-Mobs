@@ -1,6 +1,7 @@
 package io.github.aquerr.eaglefactionsmobs.command;
 
 import com.flowpowered.math.vector.Vector3d;
+import io.github.aquerr.eaglefactions.api.entities.Faction;
 import io.github.aquerr.eaglefactionsmobs.EagleFactionsMobs;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -28,6 +29,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class MobSpawnCommand extends AbstractCommand
@@ -44,6 +46,16 @@ public class MobSpawnCommand extends AbstractCommand
             throw new CommandException(Text.of("Only in-game players can use this command!"));
 
         final Player player = (Player)source;
+        final Optional<Faction> optionalFaction = super.getPlugin().getFactionLogic().getFactionByPlayerUUID(player.getUniqueId());
+
+        if (!optionalFaction.isPresent())
+            throw new CommandException(Text.of("You must be in faction in order to use this command!"));
+
+        final Faction faction = optionalFaction.get();
+        final float playerPower = super.getPlugin().getPowerManager().getPlayerPower(player.getUniqueId());
+        if (playerPower < 2.0f)
+            throw new CommandException(Text.of("You do not have enough power to spawn a faction mob!"));
+
         final World world = player.getWorld();
 
         final Human entity = (Human) world.createEntity(EntityTypes.HUMAN, player.getPosition());
@@ -51,7 +63,7 @@ public class MobSpawnCommand extends AbstractCommand
         entity.setLeggings(ItemStack.builder().itemType(ItemTypes.LEATHER_LEGGINGS).build());
         entity.setHelmet(ItemStack.builder().itemType(ItemTypes.LEATHER_HELMET).build());
         entity.setBoots(ItemStack.builder().itemType(ItemTypes.LEATHER_BOOTS).build());
-        entity.offer(Keys.DISPLAY_NAME, Text.of(TextColors.BLUE, "Nerdi's Warrior"));
+        entity.offer(Keys.DISPLAY_NAME, Text.of(TextColors.BLUE, "Warrior"));
         entity.offer(Keys.CUSTOM_NAME_VISIBLE, true);
         entity.offer(Keys.SKIN_UNIQUE_ID, UUID.fromString("53fb8065-d993-4d31-a16e-3512f2a70cf9"));
         entity.offer(Keys.AI_ENABLED, true);
@@ -76,7 +88,8 @@ public class MobSpawnCommand extends AbstractCommand
                 .targetSelector((x) -> x instanceof Player)
                 .build(entity);
 //        entity.getGoal(GoalTypes.NORMAL).get().addTask(0, avoidEntityAITask);
-        entity.getGoal(GoalTypes.NORMAL).get().addTask(2, followPlayerTask);
+//        entity.getGoal(GoalTypes.NORMAL).get().addTask(2, followPlayerTask);
+        entity.getGoal(GoalTypes.NORMAL).get().addTask(2, wanderAITask);
         entity.getGoal(GoalTypes.NORMAL).get().addTask(1, attackLivingAITask);
         entity.getGoal(GoalTypes.TARGET).get().clear();
 
@@ -98,6 +111,7 @@ public class MobSpawnCommand extends AbstractCommand
 //        entity.getGoal(GoalTypes.NORMAL).get).addTask(0, new MoveSillyToPlayerAITask(player));
         world.spawnEntity(entity);
 
+        super.getPlugin().getPowerManager().setPower(player.getUniqueId(), playerPower - 2.0f);
         return CommandResult.success();
     }
 

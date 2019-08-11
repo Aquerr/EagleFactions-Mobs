@@ -21,6 +21,6 @@ public abstract class AbstractCommand implements CommandExecutor
 
     protected EagleFactionsMobs getPlugin()
     {
-        return this.getPlugin();
+        return this.plugin;
     }
 }
