@@ -1,16 +1,12 @@
 package io.github.aquerr.eaglefactionsmobs;
 
 import com.google.inject.Inject;
-//import io.github.aquerr.eaglefactions.api.EagleFactions;
-//import io.github.aquerr.eaglefactions.api.logic.FactionLogic;
-//import io.github.aquerr.eaglefactions.api.managers.IPowerManager;
 import io.github.aquerr.eaglefactions.api.EagleFactions;
 import io.github.aquerr.eaglefactions.api.logic.FactionLogic;
-import io.github.aquerr.eaglefactions.api.managers.IPowerManager;
+import io.github.aquerr.eaglefactions.api.managers.PowerManager;
 import io.github.aquerr.eaglefactionsmobs.command.MobSpawnCommand;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandManager;
-import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
@@ -19,7 +15,6 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -38,7 +33,7 @@ public class EagleFactionsMobs
 
     private EagleFactions eagleFactions;
     private FactionLogic factionLogic;
-    private IPowerManager powerManager;
+    private PowerManager powerManager;
 
     @Inject
     private EagleFactionsMobs(final CommandManager commandManager, final EventManager eventManager, final @ConfigDir(sharedRoot = false) Path configPath) {
@@ -51,7 +46,7 @@ public class EagleFactionsMobs
         return this.factionLogic;
     }
 
-    public IPowerManager getPowerManager() {
+    public PowerManager getPowerManager() {
         return this.powerManager;
     }
 
@@ -72,12 +67,18 @@ public class EagleFactionsMobs
 
         //Load EagleFactions
         this.factionLogic = Sponge.getServiceManager().provide(FactionLogic.class).orElse(null);
-        this.powerManager = Sponge.getServiceManager().provide(IPowerManager.class).orElse(null);
+        this.powerManager = Sponge.getServiceManager().provide(PowerManager.class).orElse(null);
 
         if (this.factionLogic == null || this.powerManager == null)
         {
             Sponge.getServer().getConsole().sendMessage(PluginInfo.PLUGIN_ERROR.concat(Text.of("No Eagle Factions found!")));
             Sponge.getServer().getConsole().sendMessage(PluginInfo.PLUGIN_ERROR.concat(Text.of("Disabling the plugin...")));
+
+            Optional<?> optionalEagleFactionsInstance = Sponge.getPluginManager().getPlugin("eaglefactions").get().getInstance();
+            if(optionalEagleFactionsInstance.isPresent())
+            {
+                this.eagleFactions = (EagleFactions) optionalEagleFactionsInstance.get();
+            }
 
             disablePlugin();
             return;

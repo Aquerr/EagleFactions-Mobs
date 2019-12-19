@@ -17,5 +17,5 @@ repositories {
 
 dependencies {
     compileOnly "org.spongepowered:spongeapi:7.1.0"
-    compile "com.github.Aquerr:EagleFactionsAPI:-SNAPSHOT"
+    compileOnly "com.github.Aquerr:EagleFactionsAPI:-SNAPSHOT"
 }
