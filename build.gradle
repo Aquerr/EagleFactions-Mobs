@@ -1,8 +1,25 @@
+buildscript {
+    repositories {
+        maven {
+            name = 'forge'
+            url = 'https://files.minecraftforge.net/maven'
+        }
+    }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+
 plugins {
     id 'java'
+    id 'java-library'
     id 'idea'
     id 'org.spongepowered.plugin' version '0.9.0'
 }
+
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 group 'io.github.aquerr'
 version '1.0-SNAPSHOT'
@@ -16,6 +33,21 @@ repositories {
 }
 
 dependencies {
-    compileOnly "org.spongepowered:spongeapi:7.1.0"
+    compileOnly "org.spongepowered:spongeapi:7.3.0"
+    annotationProcessor 'org.spongepowered:spongeapi:7.3.0'
     compileOnly "com.github.Aquerr:EagleFactionsAPI:-SNAPSHOT"
+}
+
+jar {
+    if(System.getenv("JENKINS_HOME")) {
+        version = version + "_" + System.getenv("BUILD_NUMBER")
+        println("File name => " + baseName)
+    } else {
+        version = version + "-SNAPSHOT"
+    }
+}
+
+minecraft {
+    forgeVersion = '1.12.2-14.23.5.2838'
+    mappings = 'stable_39'
 }

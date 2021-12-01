@@ -65,6 +65,12 @@ public class EagleFactionsMobs
     {
         Sponge.getServer().getConsole().sendMessage(Text.of(PluginInfo.PLUGIN_PREFIX.concat(Text.of(TextColors.YELLOW, "Establishing connection with Eagle Factions..."))));
 
+        Optional<?> optionalEagleFactionsInstance = Sponge.getPluginManager().getPlugin("eaglefactions").get().getInstance();
+        if(optionalEagleFactionsInstance.isPresent())
+        {
+            this.eagleFactions = (EagleFactions) optionalEagleFactionsInstance.get();
+        }
+
         //Load EagleFactions
         this.factionLogic = Sponge.getServiceManager().provide(FactionLogic.class).orElse(null);
         this.powerManager = Sponge.getServiceManager().provide(PowerManager.class).orElse(null);
@@ -73,12 +79,6 @@ public class EagleFactionsMobs
         {
             Sponge.getServer().getConsole().sendMessage(PluginInfo.PLUGIN_ERROR.concat(Text.of("No Eagle Factions found!")));
             Sponge.getServer().getConsole().sendMessage(PluginInfo.PLUGIN_ERROR.concat(Text.of("Disabling the plugin...")));
-
-            Optional<?> optionalEagleFactionsInstance = Sponge.getPluginManager().getPlugin("eaglefactions").get().getInstance();
-            if(optionalEagleFactionsInstance.isPresent())
-            {
-                this.eagleFactions = (EagleFactions) optionalEagleFactionsInstance.get();
-            }
 
             disablePlugin();
             return;
